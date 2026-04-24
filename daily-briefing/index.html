@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<!--
+  KYLE QUILANTANG — DAILY BRIEFING
+  ─────────────────────────────────
+  To deploy on GitHub Pages:
+  1. Create a new repo at github.com (e.g. "daily-briefing")
+  2. Upload this file as index.html
+  3. Go to Settings → Pages → Source: main branch / root
+  4. Your live URL: https://[your-username].github.io/daily-briefing
+  5. Add to iPhone: Open in Safari → Share → Add to Home Screen
+
+  To refresh data, ask Claude: "Refresh my daily briefing" — Claude will
+  update this file with the latest Notion + TickTick data.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kyle's Brief">
+  <meta name="theme-color" content="#f8f7f4">
+  <title>Morning Brief — Kyle Q.</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f8f7f4;
+      --surface:      #ffffff;
+      --gold:         #d97706;
+      --gold-bg:      #fffbeb;
+      --gold-border:  rgba(217,119,6,0.2);
+      --indigo:       #4f46e5;
+      --indigo-bg:    #eef2ff;
+      --indigo-text:  #4338ca;
+      --emerald:      #059669;
+      --emerald-bg:   #ecfdf5;
+      --emerald-text: #047857;
+      --rose:         #e11d48;
+      --rose-bg:      #fff1f2;
+      --rose-text:    #be123c;
+      --orange:       #ea580c;
+      --orange-bg:    #fff7ed;
+      --text:         #1c1b1e;
+      --text-2:       #4b4b57;
+      --text-3:       #9ca3af;
+      --border:       rgba(0,0,0,0.07);
+      --shadow-sm:    0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+      --shadow:       0 2px 4px rgba(0,0,0,0.06), 0 6px 20px rgba(0,0,0,0.06);
+      --r:            18px;
+      --r-sm:         12px;
+    }
+
+    html { font-size: 15px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(48px + env(safe-area-inset-bottom));
+    }
+
+    /* ══ HERO ══════════════════════════════════ */
+    .hero {
+      background: linear-gradient(150deg, #1c1b2e 0%, #2d1f4e 50%, #1c1b2e 100%);
+      padding: calc(env(safe-area-inset-top) + 52px) 22px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 80% 10%, rgba(217,119,6,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 90%, rgba(79,70,229,0.14) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 1; }
+    .hero-date {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #fbbf24;
+      margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .hero-tagline {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* ══ LAYOUT ════════════════════════════════ */
+    .page { padding: 0 16px; }
+    .section { margin-top: 28px; }
+    .sec-head {
+      display: flex; align-items: center; gap: 9px;
+      margin-bottom: 14px;
+    }
+    .sec-icon {
+      width: 30px; height: 30px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .sec-title {
+      font-size: 0.72rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-3);
+    }
+
+    /* ══ WHY ════════════════════════════════════ */
+    .why-section {
+      background: var(--gold-bg);
+      border: 1.5px solid var(--gold-border);
+      border-radius: var(--r);
+      padding: 22px;
+      margin: 20px 16px 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .why-eyebrow {
+      font-size: 0.66rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .why-text {
+      font-size: 1.05rem; font-weight: 700;
+      line-height: 1.5; color: #92400e;
+    }
+
+    /* ══ GOALS ══════════════════════════════════ */
+    .goals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .goal-card {
+      background: var(--surface);
+      border-radius: var(--r-sm);
+      box-shadow: var(--shadow-sm);
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .goal-emoji { font-size: 1.3rem; }
+    .goal-text {
+      font-size: 0.82rem; font-weight: 700;
+      line-height: 1.35; color: var(--text);
+    }
+
+    /* ══ TOP 3 ══════════════════════════════════ */
+    .wins-stack { display: flex; flex-direction: column; gap: 10px; }
+    .win-card { border-radius: var(--r); padding: 18px; box-shadow: var(--shadow-sm); }
+    .win-card.biz  { background: var(--indigo-bg); }
+    .win-card.hlth { background: var(--emerald-bg); }
+    .win-card.rel  { background: var(--rose-bg); }
+    .win-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.64rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+    }
+    .win-card.biz  .win-badge { background: rgba(79,70,229,0.12);  color: var(--indigo-text); }
+    .win-card.hlth .win-badge { background: rgba(5,150,105,0.12);  color: var(--emerald-text); }
+    .win-card.rel  .win-badge { background: rgba(225,29,72,0.12);  color: var(--rose-text); }
+    .win-task { font-size: 1rem; font-weight: 800; line-height: 1.3; color: var(--text); margin-bottom: 5px; }
+    .win-note { font-size: 0.8rem; line-height: 1.45; color: var(--text-2); }
+    .win-note strong { color: var(--text); }
+
+    /* ══ CRM ════════════════════════════════════ */
+    .crm-card { padding: 4px 18px; }
+    .prospect-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid var(--border);
+    }
+    .prospect-row:last-child { border-bottom: none; }
+    .udot {
+      width: 9px; height: 9px; border-radius: 50%;
+      margin-top: 5px; flex-shrink: 0;
+    }
+    .udot.tomorrow { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+    .udot.overdue  { background: var(--rose); box-shadow: 0 0 5px rgba(225,29,72,0.3); }
+    .p-name {
+      font-size: 0.9rem; font-weight: 800; color: var(--text);
+      margin-bottom: 3px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
+    }
+    .p-meta {
+      font-size: 0.73rem; color: var(--text-3); margin-bottom: 3px;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
+    }
+    .p-action { font-size: 0.8rem; color: var(--text-2); line-height: 1.4; }
+    .badge {
+      font-size: 0.6rem; font-weight: 900;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .badge.tomorrow { background: #fef3c7; color: #92400e; }
+    .badge.overdue  { background: var(--rose-bg); color: var(--rose-text); }
+    .stage-pill {
+      font-size: 0.6rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .sp-prospect { background: #f3f4f6; color: #6b7280; }
+    .sp-contact  { background: var(--indigo-bg); color: var(--indigo-text); }
+    .sp-followup { background: var(--orange-bg); color: var(--orange); }
+
+    /* ══ PIPELINE ═══════════════════════════════ */
+    .pipeline-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+    .p-stage {
+      background: var(--surface); border-radius: var(--r-sm);
+      box-shadow: var(--shadow-sm); padding: 14px 6px; text-align: center;
+    }
+    .p-count { font-size: 1.6rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+    .p-slabel {
+      font-size: 0.56rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3);
+    }
+
+    /* ══ TEAM CHART ═════════════════════════════ */
+    .chart-wrap {
+      background: var(--surface); border-radius: var(--r);
+      box-shadow: var(--shadow); padding: 18px;
+    }
+    .chart-canvas-wrap { height: 220px; position: relative; }
+    .chart-legend { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+    .leg-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 600; color: var(--text-2);
+    }
+    .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ══ TEAMMATE CARDS ═════════════════════════ */
+    .teammate-cards { display: flex; flex-direction: column; gap: 10px; }
+    .teammate-card {
+      background: var(--surface); border-radius: var(--r);
+      box-shadow: var(--shadow-sm); padding: 18px; border-left: 4px solid;
+    }
+    .teammate-card.lanny { border-left-color: var(--indigo); }
+    .teammate-card.belen { border-left-color: var(--emerald); }
+    .tm-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 14px;
+    }
+    .tm-name { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .tm-role { font-size: 0.73rem; color: var(--text-2); margin-top: 2px; }
+    .tm-pill {
+      font-size: 0.68rem; font-weight: 800;
+      padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .lanny .tm-pill { background: var(--indigo-bg); color: var(--indigo-text); }
+    .belen .tm-pill { background: var(--emerald-bg); color: var(--emerald-text); }
+    .milestones {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 6px; margin-bottom: 14px;
+    }
+    .ms {
+      border-radius: 8px; padding: 7px 4px; text-align: center;
+      font-size: 0.59rem; font-weight: 700; line-height: 1.3;
+    }
+    .ms.done { background: var(--indigo-bg); color: var(--indigo-text); }
+    .ms.prog { background: #fefce8; color: #a16207; }
+    .ms.todo { background: #f9fafb; color: var(--text-3); }
+    .belen .ms.done { background: var(--emerald-bg); color: var(--emerald-text); }
+    .tm-next { font-size: 0.8rem; color: var(--text-2); line-height: 1.5; }
+    .tm-next strong { color: var(--text); }
+
+    /* ══ TICKTICK ═══════════════════════════════ */
+    .task-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .task-row:last-child { border-bottom: none; }
+    .task-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2.5px solid var(--indigo); flex-shrink: 0; margin-top: 1px;
+    }
+    .task-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .task-sub   { font-size: 0.74rem; color: var(--text-2); line-height: 1.4; }
+
+    /* ══ CALENDAR ══════════════════════════════ */
+    .cal-list { display: flex; flex-direction: column; gap: 0; padding: 4px 18px; }
+    .cal-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .cal-row:last-child { border-bottom: none; }
+    .cal-time {
+      font-size: 0.78rem; font-weight: 800;
+      color: var(--gold); min-width: 58px; padding-top: 2px;
+      flex-shrink: 0;
+    }
+    .cal-body { flex: 1; }
+    .cal-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .cal-loc   { font-size: 0.75rem; color: var(--text-3); line-height: 1.4; }
+    .cal-links { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+    .cal-links a {
+      font-size: 0.73rem; color: var(--indigo); text-decoration: none; font-weight: 600;
+    }
+    .cal-empty { font-size: 0.85rem; color: var(--text-3); padding: 10px 18px; }
+
+    /* ══ AFFIRMATION ════════════════════════════ */
+    .aff-card {
+      background: linear-gradient(135deg, #2d1f4e 0%, #1c1b2e 100%);
+      border-radius: var(--r); padding: 28px 22px;
+      text-align: center; box-shadow: var(--shadow);
+    }
+    .aff-eyebrow {
+      font-size: 0.66rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: #fbbf24; margin-bottom: 12px;
+    }
+    .aff-text { font-size: 1.15rem; font-weight: 800; line-height: 1.5; color: #ffffff; }
+
+    /* ══ FOOTER ═════════════════════════════════ */
+    .footer {
+      text-align: center; padding: 28px 20px 8px;
+      font-size: 0.68rem; color: var(--text-3);
+    }
+
+    /* ══ ANIMATIONS ═════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero        { animation: fadeUp 0.45s ease both; }
+    .why-section { animation: fadeUp 0.45s ease 0.06s both; }
+    .section { animation: fadeUp 0.45s ease both; }
+    .section:nth-child(1) { animation-delay: 0.10s; }
+    .section:nth-child(2) { animation-delay: 0.16s; }
+    .section:nth-child(3) { animation-delay: 0.22s; }
+    .section:nth-child(4) { animation-delay: 0.28s; }
+    .section:nth-child(5) { animation-delay: 0.34s; }
+    .section:nth-child(6) { animation-delay: 0.40s; }
+    .section:nth-child(7) { animation-delay: 0.46s; }
+    .section:nth-child(8) { animation-delay: 0.52s; }
+  </style>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-date" id="dateStr">Loading…</div>
+    <h1 class="hero-title">Good morning,<br>Kyle. 🌅</h1>
+    <p class="hero-tagline">The Quilantang name lives through your work today.</p>
+  </div>
+</div>
+
+<!-- ══ WHY ════════════════════════════════════ -->
+<div class="why-section">
+  <div class="why-eyebrow">Why I'm working today</div>
+  <div class="why-text" id="todayWhy">Loading…</div>
+</div>
+
+<div class="page">
+
+  <!-- ══ GOALS ════════════════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:#fef3c7;color:#d97706">🏆</div>
+      <span class="sec-title">My Goals</span>
+    </div>
+    <div class="goals-grid">
+      <div class="goal-card">
+        <div class="goal-emoji">💳</div>
+        <div class="goal-text">Pay off my $10,000 credit card</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-emoji">📈</div>
+        <div class="goal-text">Hit GX MD</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-emoji">👥</div>
+        <div class="goal-text">Build a 10-person team</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-emoji">🌍</div>
+        <div class="goal-text">Educate 100 families</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-emoji">🛡️</div>
+        <div class="goal-text">Build $5,000 emergency fund</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-emoji">💍</div>
+        <div class="goal-text">Save $25,000 for wedding fund</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TOP 3 NON-NEGOTIABLES ════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:#fef3c7;color:#d97706">🎯</div>
+      <span class="sec-title">Today's 3 Non-Negotiables</span>
+    </div>
+    <div class="wins-stack">
+      <div class="win-card biz">
+        <div class="win-badge">💼 Business</div>
+        <div class="win-task">Work your Follow-Up pipeline</div>
+        <div class="win-note">Eric Velasco, Daniel Veronica, Joy &amp; Efrain are all in Follow-Up — <strong>text, call, or email at least one today.</strong> Veronica had a confirmed date yesterday — check in on attendance.</div>
+      </div>
+      <div class="win-card hlth">
+        <div class="win-badge">💪 Health</div>
+        <div class="win-task">Set your health win for today</div>
+        <div class="win-note">No health task in TickTick yet. Add one with tag <strong>#Health</strong> to see it here daily.</div>
+      </div>
+      <div class="win-card rel">
+        <div class="win-badge">❤️ Relationships</div>
+        <div class="win-task">Set your relationship win for today</div>
+        <div class="win-note">No relationship task yet. Add one with tag <strong>#Relationships</strong> in TickTick.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TODAY'S CALENDAR ══════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:#eff6ff;color:#2563eb">📅</div>
+      <span class="sec-title">Today's Calendar</span>
+    </div>
+    <div class="card cal-list">
+      <div class="cal-row">
+        <div class="cal-time">5:30 AM</div>
+        <div class="cal-body">
+          <div class="cal-title">🥚 Cook Scrambled Eggs for Work</div>
+          <div class="cal-loc">Until 7:00 AM · At home · Scrambled eggs for ~25 people · Oven + cast iron method</div>
+        </div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-time">7:12 AM</div>
+        <div class="cal-body">
+          <div class="cal-title">🚗 Depart for Work</div>
+          <div class="cal-loc">Until 7:42 AM · Leave by 7:12 · Arrive 8:00–8:15 AM to set up before 8:30 meeting</div>
+        </div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-time">11:00 AM</div>
+        <div class="cal-body">
+          <div class="cal-title">🚘 Car Detailing — Eric</div>
+          <div class="cal-loc">Until 1:00 PM · Mobile detail · Confirm exact location with Eric</div>
+        </div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-time">7:15 PM</div>
+        <div class="cal-body">
+          <div class="cal-title">📡 WSB Training — Lake Balboa Financial Center</div>
+          <div class="cal-loc">Until 9:30 PM · 16600 Sherman Way, Ste 276, Van Nuys, CA 91406</div>
+          <div class="cal-links">
+            <a href="https://worldsystembuilder.zoom.us/j/968705905?pwd=SVJCdEg2d3hxa05KUXRTZElSbjRTUT09" target="_blank">🔗 National Training Zoom (7:30–8:20 PM)</a>
+            <a href="https://us02web.zoom.us/j/3373733366?pwd=dUNNYUhYQVhDVnc4TVVkbURRNHR1Zz09" target="_blank">🔗 Local Office Zoom (8:20–9:00 PM)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CRM RADAR ═════════════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--orange-bg);color:var(--orange)">📡</div>
+      <span class="sec-title">CRM Radar — Needs Your Attention</span>
+    </div>
+    <div class="card crm-card" id="crmList"></div>
+  </div>
+
+  <!-- ══ PIPELINE ══════════════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--indigo-bg);color:var(--indigo)">🔢</div>
+      <span class="sec-title">Pipeline Snapshot — 16 Prospects</span>
+    </div>
+    <div class="pipeline-row">
+      <div class="p-stage">
+        <div class="p-count" style="color:#9ca3af">5</div>
+        <div class="p-slabel">Prospect</div>
+      </div>
+      <div class="p-stage">
+        <div class="p-count" style="color:var(--indigo)">4</div>
+        <div class="p-slabel">Contact</div>
+      </div>
+      <div class="p-stage">
+        <div class="p-count" style="color:#ca8a04">2</div>
+        <div class="p-slabel">Present</div>
+      </div>
+      <div class="p-stage">
+        <div class="p-count" style="color:var(--orange)">5</div>
+        <div class="p-slabel">Follow-Up</div>
+      </div>
+      <div class="p-stage">
+        <div class="p-count" style="color:var(--emerald)">0</div>
+        <div class="p-slabel">Start-Up</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TEAM BUBBLE CHART ═════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--emerald-bg);color:var(--emerald)">🫧</div>
+      <span class="sec-title">Team — Milestone Progress</span>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-canvas-wrap">
+        <canvas id="teamChart"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="leg-item">
+          <div class="leg-dot" style="background:var(--indigo)"></div>
+          Lanny Hernandez · 3 of 8
+        </div>
+        <div class="leg-item">
+          <div class="leg-dot" style="background:var(--emerald)"></div>
+          Belen Contreras · 2 of 8
+        </div>
+      </div>
+      <p style="font-size:0.7rem;color:var(--text-3);margin-top:8px;line-height:1.4">X-axis = milestone step. Bubble size = progress weight. Tap for details.</p>
+    </div>
+  </div>
+
+  <!-- ══ TEAMMATE BREAKDOWN ════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--emerald-bg);color:var(--emerald)">🚀</div>
+      <span class="sec-title">Teammate Breakdown</span>
+    </div>
+    <div class="teammate-cards">
+
+      <!-- LANNY -->
+      <div class="teammate-card lanny">
+        <div class="tm-header">
+          <div>
+            <div class="tm-name">Lanny Hernandez</div>
+            <div class="tm-role">Agent Code: F3B6H · Trade Worker / Machinist Student</div>
+          </div>
+          <div class="tm-pill">3 / 8 ✦</div>
+        </div>
+        <div class="milestones">
+          <div class="ms done">✅ Start-Up Kit / AMA</div>
+          <div class="ms done">✅ Workshop Feb 28</div>
+          <div class="ms todo">⬜ Pre-Licensing</div>
+          <div class="ms todo">⬜ Meet Spouse</div>
+          <div class="ms todo">⬜ Share List</div>
+          <div class="ms done">✅ PFS Complete</div>
+          <div class="ms todo">⬜ Field Training</div>
+          <div class="ms todo">⬜ GX1 3/15</div>
+        </div>
+        <div class="tm-next"><strong>What's next:</strong> Set up XCEL pre-licensing course + lock in PSI exam date. Complete personalized FFIUL financial recommendation Zoom with Jonathan.</div>
+      </div>
+
+      <!-- BELEN -->
+      <div class="teammate-card belen">
+        <div class="tm-header">
+          <div>
+            <div class="tm-name">Belen Contreras</div>
+            <div class="tm-role">Program Coordinator · United Parents (Nonprofit)</div>
+          </div>
+          <div class="tm-pill" style="background:var(--emerald-bg);color:var(--emerald-text)">2 / 8 ✦</div>
+        </div>
+        <div class="milestones">
+          <div class="ms done">✅ Start-Up Kit / AMA</div>
+          <div class="ms done">✅ Workshop Feb 28</div>
+          <div class="ms prog">🔄 Pre-Licensing</div>
+          <div class="ms todo">⬜ Meet Spouse</div>
+          <div class="ms todo">⬜ Share List</div>
+          <div class="ms todo">⬜ PFS Complete</div>
+          <div class="ms todo">⬜ Field Training</div>
+          <div class="ms todo">⬜ GX1 3/15</div>
+        </div>
+        <div class="tm-next"><strong>What's next:</strong> Confirm PSI exam result (booked Apr 3). If passed → schedule PFS with Charlene. Home BPM with Spanish-speaking trainer for her parents in Moorpark (Alfredo coordinating).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TICKTICK ══════════════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--indigo-bg);color:var(--indigo)">✅</div>
+      <span class="sec-title">Today in TickTick</span>
+    </div>
+    <div class="card" style="padding:4px 18px">
+      <div class="task-row">
+        <div class="task-circle"></div>
+        <div>
+          <div class="task-title">Daily Planning</div>
+          <div class="task-sub">Write who's out · Check GCHP Huddle SARs · Organize mail · Send "Ready to Send" letters · Web messages · Listen to VMs · Open Cerner</div>
+        </div>
+      </div>
+      <div class="task-row">
+        <div class="task-circle"></div>
+        <div>
+          <div class="task-title">Migrate into THE CLAUDE FOLDER</div>
+          <div class="task-sub">Due Apr 24 · Personal context, Notion workspace, business info, content strategy, all skills</div>
+        </div>
+      </div>
+      <div class="task-row">
+        <div class="task-circle"></div>
+        <div>
+          <div class="task-title">Before Leaving Work</div>
+          <div class="task-sub">Update Time Study · Prepare letters · Organize inbox · Clean table · Wash containers · Pack bags</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AFFIRMATION ═══════════════════════════ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-icon" style="background:var(--rose-bg);color:var(--rose)">✨</div>
+      <span class="sec-title">Affirmation of the Day</span>
+    </div>
+    <div class="aff-card">
+      <div class="aff-eyebrow">Today's reminder</div>
+      <div class="aff-text" id="affText">Loading…</div>
+    </div>
+  </div>
+
+</div><!-- /.page -->
+
+<div class="footer">Kyle Quilantang · Morning Briefing · Notion + TickTick · Synced Apr 22, 2026</div>
+
+<script>
+/* ── DATE ───────────────────────────────── */
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now    = new Date();
+document.getElementById('dateStr').textContent =
+  `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+/* ── ROTATING WHY (day of week) ─────────── */
+const WHYS = [
+  "To carry my ancestor's cross to victory — every sacrifice and unfulfilled dream that came before me weighs on my shoulders.",
+  "Make everyone know the name Quilantang.",
+  "To retire my parents with first-class everything — freedom to live however they want.",
+  "To be there when my family needs me most.",
+  "Have $50,000 prepared for when my children arrive — so they grow up happy.",
+];
+document.getElementById('todayWhy').textContent = WHYS[(now.getDay() + 4) % WHYS.length];
+
+/* ── ROTATING AFFIRMATION (day of month) ── */
+const AFFIRMATIONS = [
+  "I carry my ancestor's strength in my DNA.",
+  "Every struggle prepared me for this moment.",
+  "I want to see and celebrate the invisible ones.",
+  "My grandmother smiles through me.",
+  "I am SOMEBODY who makes SOMEBODIES.",
+  "My ADHD is not a limitation — it is my superpower.",
+  "DECISIONS beat CONDITIONS every single time.",
+];
+document.getElementById('affText').textContent = AFFIRMATIONS[now.getDate() % AFFIRMATIONS.length];
+
+/* ── CRM RADAR ──────────────────────────── */
+const FOLLOW_UPS = [
+  { name:'Eric Velasco',      due:'2026-04-01', stage:'sp-followup', stageLabel:'Follow-Up',        action:'Email: Erickvelasco0790@gmail.com — warm check-in, move toward appointment.' },
+  { name:'Daniel Veronica',   due:'2026-04-01', stage:'sp-followup', stageLabel:'Follow-Up',        action:'Email: Danilo.805@hotmail.com — follow up on last conversation, set next step.' },
+  { name:'Joy',               due:'2026-04-01', stage:'sp-followup', stageLabel:'Follow-Up',        action:'Email: Totheworld.joy@gmail.com — reach out, schedule a financial review conversation.' },
+  { name:'Efrain',            due:'2026-04-01', stage:'sp-followup', stageLabel:'Follow-Up',        action:'Email: efrain.aguilar0101@gmail.com — follow up and keep momentum going.' },
+  { name:'Keira Quilantang',  due:'2026-04-10', stage:'sp-followup', stageLabel:'Follow-Up',        action:'Email: keiramarielol@gmail.com — family connection, warm follow-up.' },
+  { name:'Veronica',          due:'2026-04-21', stage:'sp-contact',  stageLabel:'Contact/Approach', action:'Confirmed date was Apr 21 — check in on attendance, what questions came up.' },
+];
+
+const crmEl = document.getElementById('crmList');
+const todayMs = new Date(new Date().toDateString()).getTime();
+
+FOLLOW_UPS.forEach(p => {
+  const dueMs = new Date(p.due).getTime();
+  const diff  = Math.round((todayMs - dueMs) / 86400000);
+  const isTmrw  = diff === -1;
+  const isToday = diff === 0;
+  const dotCls  = (isTmrw || isToday) ? 'tomorrow' : 'overdue';
+  const badgeTxt = isTmrw ? 'Due Tomorrow' : isToday ? 'Due Today' : `${diff}d overdue`;
+  const badgeCls = (isTmrw || isToday) ? 'tomorrow' : 'overdue';
+  const dateStr  = new Date(p.due).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+  crmEl.innerHTML += `
+    <div class="prospect-row">
+      <div class="udot ${dotCls}"></div>
+      <div style="flex:1">
+        <div class="p-name">${p.name}<span class="badge ${badgeCls}">${badgeTxt}</span></div>
+        <div class="p-meta">${dateStr}<span class="stage-pill ${p.stage}">${p.stageLabel}</span></div>
+        <div class="p-action">${p.action}</div>
+      </div>
+    </div>`;
+});
+
+/* ── TEAM BUBBLE CHART ──────────────────── */
+// x = milestones completed, y = fixed for spacing, r = progress-weighted size
+const TEAM_DATA = [
+  { name:'Lanny Hernandez', completed:3, x:3, y:1.8,
+    color:'rgba(79,70,229,0.85)', border:'rgba(79,70,229,1)',
+    next:'Pre-Licensing + FFIUL Zoom w/ Jonathan' },
+  { name:'Belen Contreras', completed:2, x:2, y:2.2,
+    color:'rgba(5,150,105,0.85)', border:'rgba(5,150,105,1)',
+    next:'Confirm PSI result → PFS w/ Charlene' },
+];
+
+new Chart(document.getElementById('teamChart').getContext('2d'), {
+  type: 'bubble',
+  data: {
+    datasets: TEAM_DATA.map(t => ({
+      label: t.name,
+      backgroundColor: t.color,
+      borderColor: t.border,
+      borderWidth: 2.5,
+      data: [{ x: t.x, y: t.y, r: 18 + t.completed * 9,
+               name: t.name, completed: t.completed, next: t.next }],
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 900, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1c1b2e',
+        titleColor: '#ffffff',
+        bodyColor: 'rgba(255,255,255,0.72)',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 10,
+        callbacks: {
+          title: () => '',
+          label: (ctx) => {
+            const d = ctx.raw;
+            return [`${d.name}`, `Completed: ${d.completed}/8 milestones`, `Next: ${d.next}`];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0, max: 9,
+        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+        ticks: {
+          color: '#9ca3af',
+          font: { size: 10, weight: '700' },
+          maxTicksLimit: 10,
+          callback: v => ({1:'AMA',2:'Workshop',3:'Pre-Lic',4:'Spouse',
+                           5:'Share List',6:'PFS',7:'Training',8:'GX1'}[v] || ''),
+        },
+        border: { display: false },
+      },
+      y: { min: 0, max: 4, display: false, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
